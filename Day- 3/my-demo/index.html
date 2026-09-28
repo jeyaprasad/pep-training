@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Kitchen | Culinary Explorer</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600&family=Inter:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --accent: #E2B13C;
+            /* Champagne Gold */
+            --bg-deep: #0A0A0B;
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-bright: #FFFFFF;
+            --text-dim: #A1A1AA;
+        }
+
+        * {
+            box-sizing: border-box;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-deep);
+            color: var(--text-bright);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            letter-spacing: -0.01em;
+        }
+
+        /* --- Elegant Hero Section --- */
+        header {
+            height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at center, rgba(226, 177, 60, 0.05) 0%, transparent 70%);
+            padding: 20px;
+        }
+
+        header::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&q=80&w=2070') center/cover no-repeat;
+            opacity: 0.3;
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            z-index: -1;
+        }
+
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            margin: 0;
+            background: linear-gradient(to bottom, #fff, #a1a1aa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            font-size: 0.8rem;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        /* --- Search Bar Revamp --- */
+        .search-container {
+            width: 100%;
+            max-width: 650px;
+            display: flex;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            padding: 8px 8px 8px 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .search-container input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+        }
+
+        .search-container button {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 100px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .search-container button:hover {
+            transform: scale(1.05);
+            background: #fff;
+        }
+
+        /* --- Sticky Navigation --- */
+        .cuisine-nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 11, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 15px 0;
+        }
+
+        .cuisine-list {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 0 20px;
+        }
+
+        .cuisine-tag {
+            padding: 10px 24px;
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 100px;
+            white-space: nowrap;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+
+        .cuisine-tag.active {
+            background: var(--accent);
+            color: black;
+            border-color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* --- Grid & Cards --- */
+        .container {
+            max-width: 1300px;
+            margin: 60px auto;
+            padding: 0 24px;
+        }
+
+        .section-header h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            margin-bottom: 40px;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 32px;
+        }
+
+        .recipe-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image-wrapper {
+            height: 320px;
+            position: relative;
+        }
+
+        .recipe-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: saturate(0.8);
+        }
+
+        .recipe-card:hover img {
+            transform: scale(1.1);
+            filter: saturate(1.1);
+        }
+
+        .card-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.9));
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 24px;
+        }
+
+        .recipe-info h3 {
+            margin: 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            line-height: 1.2;
+        }
+
+        .tag {
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--accent);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        /* --- Modal Redesign --- */
+        .modal-content {
+            background: #111;
+            border: 1px solid var(--glass-border);
+            border-radius: 32px;
+            overflow: hidden;
+            max-width: 1000px;
+        }
+
+        .modal-image {
+            height: 100%;
+            min-height: 500px;
+        }
+
+        .modal-details {
+            padding: 60px !important;
+        }
+
+        .modal-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            color: var(--accent);
+        }
+
+        .modal-instructions {
+            font-size: 1.05rem;
+            color: #ccc;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .btn-action {
+            background: var(--accent) !important;
+            color: black !important;
+            padding: 18px 40px !important;
+            font-weight: 800;
+            margin-top: 20px;
+        }
+
+        .loader {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        footer {
+            border-top: 1px solid var(--glass-border);
+            padding: 60px;
+            opacity: 0.5;
+            font-weight: 300;
+        }
+
+        /* --- Custom Animations --- */
+        @keyframes reveal {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .recipe-card {
+            animation: reveal 0.8s ease-out backwards;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <p class="subtitle">Epicurean Journeys</p>
+        <h1>Global Kitchen</h1>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search a dish or ingredient...">
+            <button id="searchBtn">EXPLORE</button>
+        </div>
+    </header>
+
+    <nav class="cuisine-nav">
+        <div class="cuisine-list" id="cuisineList">
+            <div class="cuisine-tag active" data-area="All">Global</div>
+            <div class="cuisine-tag" data-area="Indian">Indian</div>
+            <div class="cuisine-tag" data-area="Italian">Italian</div>
+            <div class="cuisine-tag" data-area="Chinese">Chinese</div>
+            <div class="cuisine-tag" data-area="Mexican">Mexican</div>
+            <div class="cuisine-tag" data-area="American">American</div>
+            <div class="cuisine-tag" data-area="French">French</div>
+            <div class="cuisine-tag" data-area="Japanese">Japanese</div>
+            <div class="cuisine-tag" data-area="Thai">Thai</div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="section-header">
+            <h2 id="resultsTitle">Curated Selection</h2>
+        </div>
+
+        <div id="loader" class="loader">Refining the menu...</div>
+
+        <div id="recipeResults" class="results-grid">
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Global Kitchen &bull; The Art of Taste
+    </footer>
+
+    <div id="recipeModal" class="modal"
+        style="display:none; position:fixed; z-index:1000; inset:0; background:rgba(0,0,0,0.95); backdrop-filter:blur(10px); overflow-y:auto;">
+        <div class="modal-content" style="margin: 5vh auto; width:90%; position:relative;">
+            <span class="close"
+                style="position:absolute; right:30px; top:20px; font-size:40px; cursor:pointer; z-index:10;">&times;</span>
+            <div class="modal-body" style="display:flex; flex-wrap:wrap;">
+                <div class="modal-image" id="modalImage"
+                    style="flex:1; min-width:300px; background-size:cover; background-position:center;"></div>
+                <div class="modal-details" style="flex:1.2; padding:40px; min-width:300px;">
+                    <h2 class="modal-title" id="modalTitle"></h2>
+                    <div style="margin-bottom:20px;">
+                        <span class="tag" id="modalArea"></span>
+                        <span class="tag" id="modalCategory" style="color:#fff;"></span>
+                    </div>
+                    <div class="modal-instructions" id="modalInstructions"></div>
+                    <a id="modalLink" href="#" target="_blank" class="btn-action"
+                        style="text-decoration:none; display:inline-block; border-radius:100px;">VIEW SOURCE</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* All your existing script logic remains here */
+        const searchBtn = document.getElementById('searchBtn');
+        const searchInput = document.getElementById('searchInput');
+        const resultsDiv = document.getElementById('recipeResults');
+        const loader = document.getElementById('loader');
+        const resultsTitle = document.getElementById('resultsTitle');
+        const cuisineTags = document.querySelectorAll('.cuisine-tag');
+
+        const modal = document.getElementById('recipeModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalImage = document.getElementById('modalImage');
+        const modalInstructions = document.getElementById('modalInstructions');
+        const modalLink = document.getElementById('modalLink');
+        const modalArea = document.getElementById('modalArea');
+        const modalCategory = document.getElementById('modalCategory');
+        const closeBtn = document.querySelector('.close');
+
+        // Logic for Local Recipes
+        const localRecipes = [
+            {
+                idMeal: "loc_kesari",
+                strMeal: "Rava Kesari",
+                strMealThumb: "https://www.dassanasvegrecipes.com/wp-content/uploads/2013/07/rava-kesari-recipe.jpg",
+                strArea: "Indian",
+                strCategory: "Dessert",
+                strInstructions: "1. Heat ghee in a pan and roast cashews. 2. Roast Rava. 3. Boil water with saffron. 4. Mix and cook until thick.",
+                strSource: "Chef's Special"
+            },
+            {
+                idMeal: "loc_biryani",
+                strMeal: "Hyderabadi Biryani",
+                strMealThumb: "https://vismaifood.com/storage/app/uploads/public/e12/7b7/127/thumb__700_0_0_0_auto.jpg",
+                strArea: "Indian",
+                strCategory: "Main Course",
+                strInstructions: "A classic layered rice dish cooked on dum.",
+                strSource: "Chef's Special"
+            }
+        ];
+
+        window.addEventListener('load', () => loadCuisine('Indian'));
+
+        searchBtn.addEventListener('click', () => performSearch(searchInput.value));
+        searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') performSearch(searchInput.value); });
+
+        cuisineTags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                cuisineTags.forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+                const area = tag.getAttribute('data-area');
+                area === 'All' ? performSearch('') : loadCuisine(area);
+            });
+        });
+
+        closeBtn.onclick = () => modal.style.display = "none";
+
+        async function loadCuisine(area) {
+            resultsTitle.innerText = `${area} Masterpieces`;
+            resultsDiv.innerHTML = "";
+            loader.style.display = "block";
+            let allMeals = localRecipes.filter(r => r.strArea === area);
+            try {
+                const res = await fetch(`https://www.themealdb.com/api/json/v1/1/filter.php?a=${area}`);
+                const data = await res.json();
+                if (data.meals) allMeals = [...allMeals, ...data.meals];
+            } catch (err) { }
+            loader.style.display = "none";
+            displayRecipes(allMeals);
+        }
+
+        async function performSearch(query) {
+            resultsDiv.innerHTML = "";
+            loader.style.display = "block";
+            let allMeals = localRecipes.filter(r => r.strMeal.toLowerCase().includes(query.toLowerCase()));
+            try {
+                const res = await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${query || 'Chicken'}`);
+                const data = await res.json();
+                if (data.meals) allMeals = [...allMeals, ...data.meals];
+            } catch (err) { }
+            loader.style.display = "none";
+            displayRecipes(allMeals);
+        }
+
+        function displayRecipes(meals) {
+            if (!meals) return;
+            meals.forEach((meal, i) => {
+                const card = document.createElement('div');
+                card.className = 'recipe-card';
+                card.style.animationDelay = `${i * 0.05}s`;
+                card.innerHTML = `
+                    <div class="card-image-wrapper">
+                        <img src="${meal.strMealThumb}">
+                        <div class="card-overlay">
+                            <span class="tag">${meal.strArea || 'Global'}</span>
+                            <div class="recipe-info"><h3>${meal.strMeal}</h3></div>
+                        </div>
+                    </div>
+                `;
+                card.onclick = () => openRecipeModal(meal);
+                resultsDiv.appendChild(card);
+            });
+        }
+
+        async function openRecipeModal(meal) {
+            let fullMeal = meal;
+            if (!meal.idMeal.startsWith("loc_") && !meal.strInstructions) {
+                const res = await fetch(`https://www.themealdb.com/api/json/v1/1/lookup.php?i=${meal.idMeal}`);
+                const data = await res.json();
+                fullMeal = data.meals[0];
+            }
+            modalTitle.innerText = fullMeal.strMeal;
+            modalImage.style.backgroundImage = `url('${fullMeal.strMealThumb}')`;
+            modalArea.innerText = fullMeal.strArea;
+            modalCategory.innerText = fullMeal.strCategory;
+            modalInstructions.innerHTML = fullMeal.strInstructions.replace(/\n/g, '<br><br>');
+            modalLink.href = fullMeal.strSource || '#';
+            modal.style.display = "block";
+        }
+    </script>
+</body>
+
+</html>
