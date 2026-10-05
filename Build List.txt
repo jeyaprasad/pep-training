@@ -1,38 +1,40 @@
-Great job! There are 3 different ways you can test and verify that the user was actually created:
+Created .gitignore
 
-### 1. Test using Terraform Commands (Easiest)
-Terraform keeps track of what it created in a "state" file. You can ask Terraform to show you what it knows about:
+This is a very common issue! When you run `terraform init`, Terraform downloads a massive plugin file for AWS (almost 700 MB) into a hidden folder called `.terraform/`. Also, the `terraform.exe` file itself is over 100 MB. 
 
-Run this to see a list of resources Terraform is managing:
+GitHub has a strict file size limit of 100 MB, so it is blocking your push. You should never commit Terraform binaries or `.terraform` folders to Git.
+
+I have just created a **`.gitignore`** file for you at the root of your project (`d:\Career\PEP\Pep- 2\.gitignore`). This file tells Git to ignore all `terraform.exe` files and `.terraform/` folders from now on.
+
+### How to fix your Git error
+
+We need to tell Git to stop tracking the large files that you already accidentally added to your local commit. Open PowerShell and run these exact commands:
+
+**1. Go to the root of your project:**
 ```powershell
-terraform state list
+cd "d:\Career\PEP\Pep- 2"
 ```
-*(You should see `aws_iam_user.demouser1` in the output).*
 
-Run this to see the exact details of what Terraform created:
+**2. Remove the large files from Git's memory:**
+*(Note: `--cached` means it removes them from Git, but keeps them safely on your hard drive so your practicals will still work).*
 ```powershell
-terraform show
+git rm --cached "Day- 5/terraform_1.16.4_windows_amd64/terraform.exe"
+git rm -r --cached "Day- 7/iam-user-practical/.terraform/"
 ```
-
-### 2. Test using the AWS CLI (Verifies directly with AWS)
-You can use the AWS Command Line Interface to query AWS directly and ask, "Does this user exist?"
-
-Run this command in PowerShell:
+*(If you also initialized the EC2 practical, run this one too just in case:)*
 ```powershell
-aws iam get-user --user-name sjcedemo
+git rm -r --cached "Day- 7/ec2-practical/.terraform/"
 ```
-*(If successful, AWS will return a JSON block showing the user's details, including their creation date and Amazon Resource Name (ARN).)*
 
-### 3. Test using the AWS Web Console (Visual Verification)
-1. Go back to your browser where you have the **AWS Management Console** open.
-2. Go to the **IAM** service dashboard.
-3. On the left-hand menu, click on **Users**.
-4. You should now see **`sjcedemo`** in the list of users!
-
----
-**Bonus Practical Step (Optional but recommended):**
-If this is just a practice lab, it's a good habit to clean up your resources so they don't clutter your AWS account. When you are completely finished testing, you can delete the user using Terraform by running:
+**3. Add the new `.gitignore` file and commit the changes:**
 ```powershell
-terraform destroy
+git add .gitignore
+git commit -m "Remove large terraform files and add .gitignore"
 ```
-*(Type `yes` when prompted)*
+
+**4. Push to GitHub again:**
+```powershell
+git push origin main
+```
+
+It should now push successfully because the giant files are no longer in the commit! Let me know if you run into any other Git errors.

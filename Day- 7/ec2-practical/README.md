@@ -1,100 +1,172 @@
-# Terraform EC2 Practical
+# DevOps Lab Practical: AWS EC2 using Terraform
 
-This is a beginner-friendly project that demonstrates how to create an AWS EC2 instance using Terraform.
+**AIM:** To create an AWS EC2 instance using Terraform.
 
-## Concepts Explained
+**OBJECTIVE:** To learn how to provision cloud infrastructure (AWS EC2) manually through the AWS Web Console and automatically using Terraform code.
 
-1. **What is an EC2 instance?**
-   EC2 (Elastic Compute Cloud) is a virtual server in Amazon's cloud. It's like renting a computer located in a data center that you can access over the internet.
+**REQUIREMENTS:**
+*   AWS account
+*   AWS CLI installed and configured
+*   Terraform installed
+*   VS Code (or any code editor)
 
-2. **What is Terraform?**
-   Terraform is a tool that lets you manage your cloud infrastructure (like EC2 instances) by writing code instead of manually clicking around in a web browser.
+---
 
-3. **What is `aws_instance`?**
-   In Terraform, `aws_instance` is a block of code (called a "resource") that specifically tells AWS to create and manage an EC2 instance.
+## PART 1 — AWS WEB CONSOLE
 
-4. **What is AMI?**
-   AMI stands for Amazon Machine Image. It's a template that contains the software configuration (operating system, application server, and applications) required to launch your instance. AMI IDs are unique to each AWS region!
+Creating an EC2 instance manually helps us understand what Terraform is doing behind the scenes.
 
-5. **What is `instance_type`?**
-   This determines the hardware of your virtual computer (CPU, memory, storage). `t2.micro` is a small instance type that is often used for learning because it falls under the AWS Free Tier.
+**Steps to create an EC2 instance manually:**
+1. Log in to the **AWS Management Console**.
+2. Make sure your region (top-right corner) is set to **Mumbai (ap-south-1)**.
+3. Search for **EC2** and open the EC2 Dashboard.
+4. Click on **Instances** on the left menu.
+5. Click the orange **Launch instances** button.
 
-6. **What is a security group?**
-   A security group acts as a virtual firewall for your EC2 instance to control incoming and outgoing traffic. (We are using the default one in this simple lab).
+**Explain these fields:**
+1.  **Name:** The label you give your server (e.g., `sjce-devops`).
+2.  **Application and OS Images / AMI:** Where you select the Operating System (like Amazon Linux).
+3.  **Instance type:** The hardware capacity (CPU and RAM).
+4.  **Key pair:** Used for securely logging into the server via SSH.
+5.  **Network settings:** Configures which VPC and Subnet the server lives in.
+6.  **Security group:** The firewall rules allowing or blocking internet traffic.
+7.  **Storage:** The size of the hard drive (EBS volume) attached to the server.
+8.  **Advanced details:** Extra configurations like startup scripts (User Data).
+9.  **Launch instance:** The final button to create the server.
 
-7. **What is a key pair?**
-   A key pair is a set of security credentials that you use to prove your identity when connecting (SSH) to an EC2 instance. (We skipped this in this lab to keep it simple, meaning you won't be able to SSH into it).
+### Finding a Valid AMI ID
+*AMI IDs are region-specific! An AMI ID in Mumbai will not work in N. Virginia.*
+1. In the "Launch an instance" screen, under **Application and OS Images (Amazon Machine Image)**, select **Amazon Linux**.
+2. Look just below the selected OS. You will see an AMI ID that looks like `ami-0a2a11883344605eb` (it changes frequently).
+3. Copy this exact AMI ID to use in your Terraform code.
 
-8. **What is a public IP?**
-   A public IP address is an address that can be reached from the public internet. Your EC2 instance will get one so it can communicate with the outside world.
+---
 
-## Line-by-Line Code Explanation
+## THEORY
 
-### `provider.tf`
-* **`terraform { required_providers { aws = ... } }`**: Tells Terraform we want to use the AWS plugin to talk to Amazon.
-* **`provider "aws" { region = "ap-south-1" }`**: Sets the default AWS region to Mumbai (`ap-south-1`). All resources will be built here.
+*   **Terraform:** An Infrastructure as Code (IaC) tool that lets you build, change, and version cloud resources safely and efficiently using configuration files.
+*   **AWS:** Amazon Web Services, a comprehensive cloud computing platform provided by Amazon.
+*   **EC2:** Elastic Compute Cloud, a web service that provides virtual servers in AWS.
+*   **AMI:** Amazon Machine Image, a template containing the software (OS, apps) needed to launch your virtual server.
+*   **Instance type:** Defines the CPU, memory, storage, and networking capacity of the EC2 instance.
+*   **t3.micro:** A specific, low-cost general-purpose instance type that is often eligible for the AWS Free Tier.
+*   **VPC:** Virtual Private Cloud, a logically isolated section of the AWS cloud where your resources run.
+*   **Subnet:** A smaller section inside a VPC that can span a specific physical Availability Zone.
+*   **Security Group:** A virtual firewall that controls incoming and outgoing traffic to your EC2 instance.
+*   **Key Pair:** A set of cryptographic keys (public and private) used to prove your identity when logging into the EC2 instance.
+*   **Public IP:** An internet-accessible IP address assigned to your instance so it can communicate with the outside world.
+*   **Terraform provider:** A plugin that allows Terraform to interact with cloud providers like AWS.
+*   **Terraform resource:** A block of code describing a single infrastructure object, like an EC2 instance or an IAM user.
+*   **Terraform state:** A file (`terraform.tfstate`) where Terraform maps your real-world resources to your configuration files.
 
-### `ec2.tf`
-* **`data "aws_ami" "amazon_linux_2023" { ... }`**: This is a "data source". Instead of hardcoding a specific AMI ID (which changes frequently), we ask AWS to find the most recent Amazon Linux 2023 image in `ap-south-1` for us.
-* **`resource "aws_instance" "my_ec2" { ... }`**: Tells Terraform to create a new EC2 instance and name it `my_ec2` inside our Terraform code.
-* **`ami = data.aws_ami.amazon_linux_2023.id`**: Uses the ID we found using the data source above.
-* **`instance_type = "t2.micro"`**: Specifies we want a small, free-tier eligible virtual machine.
-* **`tags = { Name = "Terraform-EC2" }`**: Attaches a label to the server so it shows up named "Terraform-EC2" in the AWS Console.
+### Explaining the Terraform Block Line by Line
 
-### `outputs.tf`
-* **`output "instance_public_ip" { value = aws_instance.my_ec2.public_ip }`**: After the server is built, print the Public IP to the terminal so we can see it. We do the same for the ID, DNS, and state.
+```hcl
+resource "aws_instance" "testec2" {
+  ami           = "ami-1234567890abcdef0"
+  instance_type = "t3.micro"
 
-## Step-by-Step Practical Instructions
+  tags = {
+    Name = "sjce-devops"
+  }
+}
+```
+*   `resource "aws_instance" "testec2" {`: Declares that we want to create an AWS EC2 instance resource and names it `testec2` internally in Terraform.
+*   `ami = "..."`: Tells AWS which Operating System template to use for the server.
+*   `instance_type = "t3.micro"`: Tells AWS to use the small `t3.micro` hardware size.
+*   `tags = { Name = "sjce-devops" }`: Attaches a label to the server so it appears as `sjce-devops` in the AWS console.
+*   `}`: Closes the resource block.
 
-**Important before starting:** Verify that your AWS credentials are valid and you are deploying into `ap-south-1`.
+*(Note: We do not declare a VPC, Subnet, or Security Group in this simple block because AWS automatically launches the instance into your account's default VPC and default Security Group).*
 
-Open PowerShell, navigate to this project folder, and run the following commands:
+---
 
-1. **`aws --version`**
-   * *Expectation:* Prints the installed AWS CLI version (e.g., `aws-cli/2.x.x`).
+## IMPORTANT PRACTICAL CONCEPT
 
-2. **`aws sts get-caller-identity`**
-   * *Expectation:* Outputs a JSON block proving you are logged in (shows Account, UserId, and ARN).
+**How Terraform talks to AWS:**
+```
+Terraform code
+      ↓
+Terraform AWS Provider
+      ↓
+AWS API
+      ↓
+AWS EC2
+      ↓
+EC2 Instance
+```
 
-3. **`terraform --version`**
-   * *Expectation:* Prints the installed Terraform version (e.g., `Terraform v1.x.x`).
+**What do the commands actually do?**
+*   **`terraform plan` =** "What will Terraform change?"
+*   **`terraform apply` =** "Actually make the changes."
+*   **`terraform destroy` =** "Remove resources created by Terraform."
 
-4. **`terraform init`**
-   * *Expectation:* Downloads the AWS provider plugin and says "Terraform has been successfully initialized!"
+---
 
-5. **`terraform fmt`**
-   * *Expectation:* Formats your code to be neat. If your code is already neat, it outputs nothing. Otherwise, it prints the names of the files it fixed.
+## PART 2 — TERRAFORM COMMANDS
 
-6. **`terraform validate`**
-   * *Expectation:* Checks for typos and syntax errors. It should say "Success! The configuration is valid."
+Open PowerShell in your `ec2-practical` directory and run these commands in order:
 
-7. **`terraform plan`**
-   * *Expectation:* Previews what will happen. You should see `+ create` for `aws_instance.my_ec2` and `Plan: 1 to add`. It will also say `(known after apply)` for things like the IP address because they don't exist yet.
-
-8. **`terraform apply`**
-   * *Expectation:* It will show the plan again and ask for confirmation.
-   * **ACTION:** Type **`yes`** and press Enter.
-   * *Expectation:* It will take about 30-60 seconds to create. At the end, it will display the `Outputs` like your instance's Public IP.
-
-9. **`terraform show`**
-   * *Expectation:* Prints all the detailed attributes of your newly created EC2 instance directly from the state file.
-
+1.  **`aws --version`**
+    Checks if the AWS CLI tool is installed.
+2.  **`aws sts get-caller-identity`**
+    Verifies that your AWS credentials are correct and shows your Account ID.
+3.  **`terraform --version`**
+    Checks if Terraform is installed.
+4.  **`terraform init`**
+    Initializes the project directory by downloading the AWS provider plugin.
+5.  **`terraform fmt`**
+    Automatically formats your Terraform code to be neat and readable.
+6.  **`terraform validate`**
+    Checks your code for syntax errors.
+7.  **`terraform plan`**
+    Shows a preview of the resources Terraform will create.
+8.  **`terraform apply`**
+    Executes the code to create the EC2 instance in AWS.
+    *(When it asks `Do you want to perform these actions?`, you must type: **`yes`**)*
+    *(Expected result: `Apply complete! Resources: 1 added, 0 changed, 0 destroyed.`)*
+9.  **`terraform show`**
+    Displays the current state of your built infrastructure.
 10. **`terraform state list`**
-    * *Expectation:* Lists the resources being managed. You should see `data.aws_ami.amazon_linux_2023` and `aws_instance.my_ec2`.
+    Lists all the resources Terraform is currently managing (e.g., `aws_instance.testec2`).
 
-## Verifying in AWS Console
-1. Log into your AWS Management Console.
-2. Search for **EC2** in the top search bar and click it.
-3. Make sure your region in the top-right corner is set to **Mumbai (ap-south-1)**.
-4. Click on **Instances (running)**.
-5. You should see your new server named **Terraform-EC2**!
+---
 
-## Cleanup: Delete the Instance
-To stop paying for the instance (or to keep your account clean), you must delete it when finished.
+## VERIFY THE EC2
 
-Run this command:
+1. Go back to the **AWS Console**.
+2. Navigate to **EC2** → **Instances**.
+3. You should see a new instance. Check these details:
+   *   **Name:** Should be `sjce-devops`.
+   *   **Instance ID:** Matches the output from Terraform.
+   *   **Instance state:** Should say `Running`.
+   *   **Instance type:** Should be `t3.micro`.
+   *   **Public IPv4 address:** Matches the output from Terraform.
+   *   **Private IPv4 address:** An internal AWS IP address.
+   *   **Availability Zone:** E.g., `ap-south-1a`.
+   *   **AMI:** Matches the AMI ID you provided.
+
+---
+
+## TERRAFORM STATE
+
+*   **`terraform show`**: Reads the state file and outputs a human-readable version of everything you have built.
+*   **`terraform state list`**: Outputs a simple list of the resource names Terraform is managing.
+*   **`terraform state show aws_instance.testec2`**: Shows the detailed attributes of just this specific EC2 instance.
+
+**What is `terraform.tfstate`?**
+It is a JSON file that Terraform creates locally to keep track of the real-world infrastructure it has built. It maps the code you wrote to the actual IDs in AWS. *(Do not manually edit this file!)*
+
+---
+
+## DELETE / CLEANUP
+
+It is very important not to leave unnecessary AWS resources running because AWS may charge you money for them over time.
+
+To delete the EC2 instance, run:
 **`terraform destroy`**
 
-* It will show you a plan to destroy (`- destroy`) your resources.
-* When asked, type **`yes`**.
-* This will permanently delete the EC2 instance from AWS.
+When it prompts you, type:
+**`yes`**
+
+This safely and permanently removes the EC2 resource managed by Terraform from your AWS account.
