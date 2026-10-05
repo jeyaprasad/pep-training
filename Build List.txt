@@ -1,6 +1,38 @@
-Iron farm
-🥇 Enderman XP farm
-🥈 Creeper farm
-🥉 Gold farm
-🔥 Wool farm
-🔥 Blaze farm
+Great job! There are 3 different ways you can test and verify that the user was actually created:
+
+### 1. Test using Terraform Commands (Easiest)
+Terraform keeps track of what it created in a "state" file. You can ask Terraform to show you what it knows about:
+
+Run this to see a list of resources Terraform is managing:
+```powershell
+terraform state list
+```
+*(You should see `aws_iam_user.demouser1` in the output).*
+
+Run this to see the exact details of what Terraform created:
+```powershell
+terraform show
+```
+
+### 2. Test using the AWS CLI (Verifies directly with AWS)
+You can use the AWS Command Line Interface to query AWS directly and ask, "Does this user exist?"
+
+Run this command in PowerShell:
+```powershell
+aws iam get-user --user-name sjcedemo
+```
+*(If successful, AWS will return a JSON block showing the user's details, including their creation date and Amazon Resource Name (ARN).)*
+
+### 3. Test using the AWS Web Console (Visual Verification)
+1. Go back to your browser where you have the **AWS Management Console** open.
+2. Go to the **IAM** service dashboard.
+3. On the left-hand menu, click on **Users**.
+4. You should now see **`sjcedemo`** in the list of users!
+
+---
+**Bonus Practical Step (Optional but recommended):**
+If this is just a practice lab, it's a good habit to clean up your resources so they don't clutter your AWS account. When you are completely finished testing, you can delete the user using Terraform by running:
+```powershell
+terraform destroy
+```
+*(Type `yes` when prompted)*
