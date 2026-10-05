@@ -1,0 +1,36 @@
+docker ps
+docker ps -a
+docker start democon
+docker ps
+docker stop democon
+docker ps
+docker rm democon
+docker ps -a
+docker start ad09079a16e4
+docker ps
+docker rm ad09079a16e4
+docker rm -f ad09079a16e4
+docker ps -a
+
+
+notepad index.html
+mv index.html.txt index.html
+ls
+ls
+explorer .
+clear
+ls
+docker compose up
+docker ps
+cd ..
+notepad docker-compose.yaml
+docker compose up
+docker ps
+docker compose ps
+docker images
+docker compose images
+docker compose network
+docker compose networks ls
+docker compose networks
+docker compose down
+docker compose up -d
