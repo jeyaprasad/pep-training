@@ -1,24 +1,27 @@
-# Local .terraform directories
-**/.terraform/*
-.terraform/
-.terraform.lock.hcl
-
-# .tfstate files
+# Terraform
+**/.terraform/
 *.tfstate
 *.tfstate.*
-
-# Crash log files
 crash.log
+crash.*.log
+*.tfplan
+*.tfplan.json
 
-# Exclude all .tfvars files
+# Terraform executable
+**/terraform.exe
+*.exe
+
+# Sensitive Terraform variables
 *.tfvars
 *.tfvars.json
 
-# Ignore override files
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
+# VS Code
+.vscode/
 
-# Ignore terraform binary
-terraform.exe
+# OS
+Thumbs.db
+.DS_Store
+
+# Ignore credentials and backups
+*.csv
+*.backup
