@@ -1,0 +1,11 @@
+minikube version
+minikube start
+minikube kubectl --getnodes
+minikube kubectl -- get pods
+minikube kubectl -- get pods -A
+minikube kubectl -- run apachepod --image=httpd
+minikube kubectl -- get pods
+minikube kubectl -- describe pod apachepod
+minikube kubectl -- logs apachepod
+minikube kubectl -- exec -it apachepod -- /bin/bash
+minikube kubectl -- delete pod apachepod
